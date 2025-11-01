@@ -12,6 +12,18 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RastreadorDespesas">
         <activity
+            android:name=".AdicionarDespesaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetalheDespesaActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HistoricoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CategoriasActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
