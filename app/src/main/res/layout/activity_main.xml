@@ -95,7 +95,7 @@
         android:inputType="textCapSentences" />
 
     <Spinner
-        android:id="@+id/spinnerCategorias"
+        android:id="@+id/spinCategorias"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
