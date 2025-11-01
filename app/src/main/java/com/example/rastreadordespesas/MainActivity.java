@@ -1,5 +1,6 @@
 package com.example.rastreadordespesas;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -21,13 +22,11 @@ import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
-
     //categorias
     private Button btnIrParaCategorias;
 
-
-
+    //despesas
+    private Button btnAdicionarDespesa;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +50,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-        });
-
-        btnSalvarDespesa.setOnClickListener(new View.OnClickListener() {
+        btnAdicionarDespesa = findViewById(R.id.btnAdicionarDespesa);
+        btnAdicionarDespesa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                salvarNovaDespesa();
+                // Cria a intenção de abrir a tela de adicionar despesa
+                Intent intent = new Intent(MainActivity.this, AdicionarDespesaActivity.class);
+                startActivity(intent);
             }
         });
     }
