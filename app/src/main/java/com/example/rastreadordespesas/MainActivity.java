@@ -1,76 +1,48 @@
 package com.example.rastreadordespesas;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+// Remova os imports antigos de Button, EditText, Spinner, etc.
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+// Não precisamos mais de EdgeToEdge ou ViewCompat aqui,
+// pois os fragmentos vão cuidar disso.
 
 public class MainActivity extends AppCompatActivity {
-    //categorias
-    private Button btnIrParaCategorias;
 
-    //despesas
-    private Button btnAdicionarDespesa;
-    //historico
-    private Button btnIrParaHistorico;
-
+    // A MainActivity agora só precisa saber sobre a navegação.
+    // Todas as outras variáveis (EditTexts, botões, etc.)
+    // foram movidas para suas respectivas Activities ou Fragments.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+
+        // Define o layout que tem a barra de navegação
         setContentView(R.layout.activity_main);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        // 1. Encontra a barra de navegação no layout
+        BottomNavigationView navView = findViewById(R.id.bottom_nav_view);
 
-        btnIrParaCategorias = findViewById(R.id.btnIrParaCategorias);
-        btnIrParaCategorias.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Cria a intenção de abrir a tela de categorias
-                android.content.Intent intent = new android.content.Intent(MainActivity.this, CategoriasActivity.class);
-                startActivity(intent);
-            }
-        });
+        // 2. Encontra o "Contêiner de Fragmentos" (NavHostFragment)
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
 
-        btnAdicionarDespesa = findViewById(R.id.btnAdicionarDespesa);
-        btnAdicionarDespesa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Cria a intenção de abrir a tela de adicionar despesa
-                Intent intent = new Intent(MainActivity.this, AdicionarDespesaActivity.class);
-                startActivity(intent);
-            }
-        });
+        // 3. Obtém o "Controlador de Navegação"
+        NavController navController = navHostFragment.getNavController();
 
-        btnIrParaHistorico = findViewById(R.id.btnIrParaHistorico);
-        btnIrParaHistorico.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Cria a intenção de abrir a tela de histórico
-                Intent intent = new Intent(MainActivity.this, HistoricoActivity.class);
-                startActivity(intent);
-            }
-        });
+        // 4. Conecta a barra de navegação ao controlador
+        // Isso faz com que clicar nos botões da barra (Dashboard, Histórico, Categorias)
+        // automaticamente troque os fragmentos no contêiner.
+        NavigationUI.setupWithNavController(navView, navController);
+
+        // 5. (Opcional) Configura a barra de ação (título) para mudar com a navegação
+        // NavigationUI.setupActionBarWithNavController(this, navController);
     }
 }
