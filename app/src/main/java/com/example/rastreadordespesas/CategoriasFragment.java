@@ -1,64 +1,159 @@
 package com.example.rastreadordespesas;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.ViewGroup; // Importante para Fragments
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CategoriasFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class CategoriasFragment extends Fragment {
+import androidx.annotation.NonNull; // Importante para Fragments
+import androidx.annotation.Nullable; // Importante para Fragments
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment; // MUDANÇA IMPORTANTE
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale; // Import para String.format
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class CategoriasFragment extends Fragment { // MUDANÇA: Extends Fragment
 
+    //adicionar categorias
+    private EditText txtCategoriaNome;
+    private EditText txtCategoriaLimite;
+    private Button btnSalvarCategoria;
+    //banco de dados
+    private AppDatabase db;
+    //lista categoria
+    private ListView listviewCategorias;
+    private ArrayAdapter<String> categoryAdapter;
+    private ArrayList<String> categoryList;
+
+    // Construtor vazio (necessário para Fragments)
     public CategoriasFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CategoriasFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CategoriasFragment newInstance(String param1, String param2) {
-        CategoriasFragment fragment = new CategoriasFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        // Infla (carrega) o layout XML para este fragmento
+        // MUDANÇA: Não usamos setContentView. Inflamos a view e a retornamos.
         return inflater.inflate(R.layout.fragment_categorias, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // MUDANÇA: O código que estava no onCreate da Activity, agora vem aqui.
+        // Precisamos do 'view' para encontrar os componentes.
+
+        ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main_category), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        // MUDANÇA: Usamos 'view.findViewById'
+        txtCategoriaNome = view.findViewById(R.id.txtCategoriaNome);
+        txtCategoriaLimite = view.findViewById(R.id.txtCategoriaLimite);
+        btnSalvarCategoria = view.findViewById(R.id.btnSalvarCategoria);
+        listviewCategorias = view.findViewById(R.id.listViewCategorias);
+
+        // MUDANÇA: Usamos 'getContext()' em vez de 'this' para o Contexto
+        db = AppDatabase.getDatabase(getContext());
+
+        categoryList = new ArrayList<>();
+        categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, categoryList);
+        listviewCategorias.setAdapter(categoryAdapter);
+
+        carregarCategoriasDoBanco();
+
+        btnSalvarCategoria.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                salvarNovaCategoria();
+            }
+        });
+    }
+
+    private void salvarNovaCategoria() {
+        String nomeCategoria = txtCategoriaNome.getText().toString();
+        String limiteCategoriaStr = txtCategoriaLimite.getText().toString();
+
+        if (nomeCategoria.isEmpty()) {
+            // MUDANÇA: Usamos 'getContext()'
+            Toast.makeText(getContext(), "Preencha o nome da categoria", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        double limiteCategoria = 0.0;
+        if (!limiteCategoriaStr.isEmpty()) {
+            try {
+                limiteCategoria = Double.parseDouble(limiteCategoriaStr);
+            } catch (NumberFormatException e) {
+                // MUDANÇA: Usamos 'getContext()'
+                Toast.makeText(getContext(), "Limite Inválido. Use apenas números", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        final CategoryEntity novaCategoria = new CategoryEntity();
+        novaCategoria.setName(nomeCategoria);
+        novaCategoria.setLimiteMensal(limiteCategoria);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                db.categoryDao().insertCategory(novaCategoria);
+
+                // MUDANÇA: Usamos 'getActivity().runOnUiThread'
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "Categoria salva com sucesso!", Toast.LENGTH_SHORT).show();
+                            txtCategoriaNome.setText("");
+                            txtCategoriaLimite.setText("");
+
+                            carregarCategoriasDoBanco();
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+    private void carregarCategoriasDoBanco() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<CategoryEntity> categoriasDoBanco = db.categoryDao().getAllCategories();
+                categoryList.clear();
+
+
+                for (CategoryEntity categoria : categoriasDoBanco) {
+                    // MUDANÇA: Usando Locale para String.format
+                    String limiteFormatado = String.format(Locale.getDefault(), "%.2f", categoria.getLimiteMensal());
+                    categoryList.add(categoria.getName() + " (Limite: R$ " + limiteFormatado + " )");
+                }
+
+                // MUDANÇA: Usamos 'getActivity().runOnUiThread'
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            categoryAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 }
