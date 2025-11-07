@@ -29,4 +29,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Adicionar Nova Despesa" />
+    <Button
+        android:id="@+id/btnIrParaHistorico"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Ver Histórico de Despesas"
+        style="?attr/materialButtonOutlinedStyle" /> ```
 </LinearLayout>

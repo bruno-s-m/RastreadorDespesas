@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
 
     //despesas
     private Button btnAdicionarDespesa;
+    //historico
+    private Button btnIrParaHistorico;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Cria a intenção de abrir a tela de adicionar despesa
                 Intent intent = new Intent(MainActivity.this, AdicionarDespesaActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnIrParaHistorico = findViewById(R.id.btnIrParaHistorico);
+        btnIrParaHistorico.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Cria a intenção de abrir a tela de histórico
+                Intent intent = new Intent(MainActivity.this, HistoricoActivity.class);
                 startActivity(intent);
             }
         });
