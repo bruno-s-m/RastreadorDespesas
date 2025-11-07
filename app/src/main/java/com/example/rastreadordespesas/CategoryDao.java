@@ -10,19 +10,14 @@ import java.util.List;
 
 @Dao
 public interface CategoryDao {
-
     @Insert
     void insertCategory (CategoryEntity category);
-
     @Query("SELECT * FROM categorias ORDER BY name ASC")
     List<CategoryEntity> getAllCategories();
-
     @Update
     void updateCategory(CategoryEntity category);
-
     @Delete
     void deleteCategory(CategoryEntity category);
-
     @Query("SELECT*FROM categorias WHERE id = :categoryId LIMIT 1")
     CategoryEntity getCategoryById(int categoryId);
 

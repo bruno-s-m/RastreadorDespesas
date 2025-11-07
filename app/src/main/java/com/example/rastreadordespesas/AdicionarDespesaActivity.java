@@ -22,22 +22,15 @@ import java.util.List;
 
 public class AdicionarDespesaActivity extends AppCompatActivity {
 
-    //BANCO DE DADOS
     private AppDatabase db;
-
-    //despesas
     private EditText txtValorDespesa;
     private EditText txtDescricaoDespesa;
     private Spinner spinCategorias;
     private TextView txtDataDespesa;
     private Button btnSalvarDespesa;
-
-    //lista despesa
     private ArrayAdapter<String> spinAdapter;
     private ArrayList<String> spinCategoryNames;
     private List<CategoryEntity> loadedCategories;
-
-    //calendario
     private Calendar dataSelecionada;
 
     @Override
@@ -52,7 +45,6 @@ public class AdicionarDespesaActivity extends AppCompatActivity {
         });
 
         db = AppDatabase.getDatabase(getApplicationContext());
-
 
         txtValorDespesa = findViewById(R.id.txtValorDespesa);
         txtDescricaoDespesa = findViewById(R.id.txtDescricaoDespesa);
@@ -77,7 +69,6 @@ public class AdicionarDespesaActivity extends AppCompatActivity {
                 int ano = dataSelecionada.get(Calendar.YEAR);
                 int mes = dataSelecionada.get(Calendar.MONTH);
                 int dia = dataSelecionada.get(Calendar.DAY_OF_MONTH);
-
 
                 android.app.DatePickerDialog datePickerDialog = new android.app.DatePickerDialog(AdicionarDespesaActivity.this, new android.app.DatePickerDialog.OnDateSetListener() {
                     @Override
@@ -133,7 +124,7 @@ public class AdicionarDespesaActivity extends AppCompatActivity {
         novaDespesa.setData(dataParaSalvar);
         novaDespesa.setCategoriaId(categoriaId);
 
-        if (limiteCategoria <= 0 ){
+        if (limiteCategoria <= 0) {
             executarSalvamento(novaDespesa);
             return;
         }
@@ -152,16 +143,16 @@ public class AdicionarDespesaActivity extends AppCompatActivity {
                     public void run() {
                         if (novaTotal > limiteCategoria) {
                             mostrarAlertaLimite(novaDespesa, novaTotal, limiteCategoria);
-                    }else {
+                        } else {
                             executarSalvamento(novaDespesa);
+                        }
                     }
-                }
-            });
-        }
-    }).start();
-}
+                });
+            }
+        }).start();
+    }
 
-private void mostrarAlertaLimite(ExpenseEntity despesaParaSalvar, double novoTotal, double limiteCategoria) {
+    private void mostrarAlertaLimite(ExpenseEntity despesaParaSalvar, double novoTotal, double limiteCategoria) {
         new AlertDialog.Builder(this)
                 .setTitle("Alerta de Orçamento")
                 .setMessage("Você está prestes a exceder o limite para esta categoria.\n\n" +
@@ -172,14 +163,14 @@ private void mostrarAlertaLimite(ExpenseEntity despesaParaSalvar, double novoTot
                 .setPositiveButton("Confirmar", (dialog, which) -> {
                     executarSalvamento(despesaParaSalvar);
                 })
-                .setNegativeButton("Cancelar",(dialog, which) -> {
+                .setNegativeButton("Cancelar", (dialog, which) -> {
                     dialog.dismiss();
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
-}
+    }
 
-private void executarSalvamento(ExpenseEntity novaDespesa) {
+    private void executarSalvamento(ExpenseEntity novaDespesa) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -194,14 +185,12 @@ private void executarSalvamento(ExpenseEntity novaDespesa) {
                 });
             }
         }).start();
-}
-
+    }
 
     private void atualizarDataNoTextView() {
         java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
         txtDataDespesa.setText(sdf.format(dataSelecionada.getTime()));
     }
-
 
     private void carregarCategoriasDoBanco() {
         new Thread(new Runnable() {
@@ -222,7 +211,6 @@ private void executarSalvamento(ExpenseEntity novaDespesa) {
                 });
             }
         }).start();
-
     }
 
     private long getInicioDoMes(Calendar data) {

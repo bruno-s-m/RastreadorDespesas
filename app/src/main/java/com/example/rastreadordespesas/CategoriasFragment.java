@@ -25,21 +25,16 @@ import java.util.Locale;
 
 public class CategoriasFragment extends Fragment {
 
-    //adicionar categorias
     private EditText txtCategoriaNome;
     private EditText txtCategoriaLimite;
     private Button btnSalvarCategoria;
-    //banco de dados
     private AppDatabase db;
-    //lista categoria
     private ListView listviewCategorias;
     private ArrayAdapter<String> categoryAdapter;
-    private ArrayList<String> categoryList; // Lista para exibição (Strings)
-    private List<CategoryEntity> loadedCategories; // Lista de objetos (para IDs)
+    private ArrayList<String> categoryList;
+    private List<CategoryEntity> loadedCategories;
 
-    // Construtor vazio (necessário para Fragments)
     public CategoriasFragment() {
-        // Required empty public constructor
     }
 
     @Override
@@ -53,29 +48,24 @@ public class CategoriasFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Ajuste do layout (usando o ID 'main_category' do seu XML)
         ViewCompat.setOnApplyWindowInsetsListener(view.findViewById(R.id.main_category), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Conectando os componentes visuais
         txtCategoriaNome = view.findViewById(R.id.txtCategoriaNome);
         txtCategoriaLimite = view.findViewById(R.id.txtCategoriaLimite);
         btnSalvarCategoria = view.findViewById(R.id.btnSalvarCategoria);
         listviewCategorias = view.findViewById(R.id.listViewCategorias);
 
-        // Inicializando o banco de dados
         db = AppDatabase.getDatabase(getContext());
 
-        // Configurando a ListView e o Adapter
         categoryList = new ArrayList<>();
-        loadedCategories = new ArrayList<>(); // Inicializa a lista de objetos
+        loadedCategories = new ArrayList<>();
         categoryAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, categoryList);
         listviewCategorias.setAdapter(categoryAdapter);
 
-        // Configurando o clique para Salvar Categoria
         btnSalvarCategoria.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,20 +73,12 @@ public class CategoriasFragment extends Fragment {
             }
         });
 
-        // Configurando o clique nos itens da lista (para Editar/Excluir)
         listviewCategorias.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Pega a categoria clicada da nossa lista de objetos
                 CategoryEntity categoriaClicada = loadedCategories.get(position);
-
-                // Cria o Intent para a tela de DetalheCategoria
                 Intent intent = new Intent(getContext(), DetalheCategoriaActivity.class);
-
-                // Coloca o ID da categoria no Intent
                 intent.putExtra("CATEGORIA_ID", categoriaClicada.getId());
-
-                // Abre a tela de detalhes
                 startActivity(intent);
             }
         });
@@ -105,8 +87,6 @@ public class CategoriasFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Carrega (ou recarrega) a lista toda vez que esta tela fica visível
-        // Isso atualiza a lista após sairmos da tela de detalhes
         carregarCategoriasDoBanco();
     }
 
@@ -146,7 +126,6 @@ public class CategoriasFragment extends Fragment {
                             txtCategoriaNome.setText("");
                             txtCategoriaLimite.setText("");
 
-                            // Recarrega a lista após salvar
                             carregarCategoriasDoBanco();
                         }
                     });
@@ -159,10 +138,9 @@ public class CategoriasFragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                // Busca os objetos completos do banco
+
                 loadedCategories = db.categoryDao().getAllCategories();
 
-                // Prepara a lista de Strings para exibição
                 categoryList.clear();
                 for (CategoryEntity categoria : loadedCategories) {
                     String limiteFormatado = String.format(Locale.getDefault(), "%.2f", categoria.getLimiteMensal());
@@ -173,7 +151,7 @@ public class CategoriasFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // Notifica o adapter que os dados mudaram
+
                             categoryAdapter.notifyDataSetChanged();
                         }
                     });
