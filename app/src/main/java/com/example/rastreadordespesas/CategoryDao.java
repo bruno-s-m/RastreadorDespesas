@@ -1,12 +1,10 @@
-package com.example.rastreadordespesas.DAO;
+package com.example.rastreadordespesas;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
-
-import com.example.rastreadordespesas.Entity.CategoryEntity;
 
 import java.util.List;
 

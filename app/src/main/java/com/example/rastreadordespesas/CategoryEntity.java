@@ -1,4 +1,4 @@
-package com.example.rastreadordespesas.Entity;
+package com.example.rastreadordespesas;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;

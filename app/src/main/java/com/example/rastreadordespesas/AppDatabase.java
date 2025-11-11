@@ -1,4 +1,4 @@
-package com.example.rastreadordespesas.conexao;
+package com.example.rastreadordespesas;
 
 import android.content.Context;
 
@@ -6,12 +6,6 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
-
-import com.example.rastreadordespesas.Converters;
-import com.example.rastreadordespesas.DAO.CategoryDao;
-import com.example.rastreadordespesas.DAO.ExpenseDao;
-import com.example.rastreadordespesas.Entity.CategoryEntity;
-import com.example.rastreadordespesas.Entity.ExpenseEntity;
 
 @Database(entities = {CategoryEntity.class, ExpenseEntity.class}, version = 1, exportSchema = false)
 @TypeConverters({Converters.class})
