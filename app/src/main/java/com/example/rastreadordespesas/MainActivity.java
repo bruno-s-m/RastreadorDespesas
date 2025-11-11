@@ -186,11 +186,6 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    /**
-     * ATUALIZADO: Este método agora carrega categorias em DOIS lugares:
-     * 1. Na 'listViewCategorias' (para visualização)
-     * 2. Na 'spinnerCategorias' (para o formulário de despesa)
-     */
     private void carregarCategoriasDoBanco() {
         new Thread(new Runnable() {
             @Override
@@ -253,7 +248,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 1: // Editar
                         Toast.makeText(MainActivity.this, "Função de editar será implementada.", Toast.LENGTH_SHORT).show();
-                        // Aqui você chamaria um método para abrir um novo diálogo de edição
                         break;
                 }
             }
@@ -397,10 +391,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }).start();
     }
-
-    // =================================================================================
-    // --- MÉTODO DE RESUMO DO ORÇAMENTO (Requisito 5) ---
-    // =================================================================================
 
     /**
      * NOVO: Calcula o total gasto por categoria no mês corrente (Requisitos 5.2 e 5.3)
