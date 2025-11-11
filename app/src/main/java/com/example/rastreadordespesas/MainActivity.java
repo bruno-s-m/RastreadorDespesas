@@ -2,9 +2,9 @@ package com.example.rastreadordespesas;
 
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent; // IMPORTANTE: Adicionar Intent
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.view.View; // IMPORTANTE: Adicionar View
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,7 +31,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    // --- Variáveis para Categorias ---
     private EditText txtCategoriaNome;
     private EditText txtCategoriaLimite;
     private Button btnSalvarCategoria;
@@ -39,20 +38,14 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> categoryAdapter;
     private ArrayList<String> categoryList;
     private List<CategoryEntity> listaDeCategorias;
-
-    // --- Variáveis para Despesas ---
     private EditText txtValorDespesa;
     private EditText txtDescricaoDespesa;
     private Spinner spinnerCategorias;
     private TextView txtDataDespesa;
     private Button btnSalvarDespesa;
     private Date dataSelecionada;
-
-    // --- Variável de Navegação ---
-    private Button btnVerResumo; // NOVO
-
+    private Button btnVerResumo;
     private AppDatabase db;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
 
     // =================================================================================
     // --- MÉTODOS DE CATEGORIA (CRUD) ---
-    // (Estes métodos permanecem na MainActivity)
     // =================================================================================
 
     private void salvarNovaCategoria() {
+        // ... (Este método está correto, sem alterações)
         String nomeCategoria = txtCategoriaNome.getText().toString();
         String limiteCategoriaStr = txtCategoriaLimite.getText().toString();
 
@@ -146,12 +139,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Categoria salva com sucesso!", Toast.LENGTH_SHORT).show();
                 txtCategoriaNome.setText("");
                 txtCategoriaLimite.setText("");
-                carregarCategoriasDoBanco(); // Recarrega as categorias na ListView E no Spinner
+                carregarCategoriasDoBanco();
             });
         }).start();
     }
 
     private void carregarCategoriasDoBanco() {
+        // ... (Este método está correto, sem alterações)
         new Thread(() -> {
             listaDeCategorias = db.categoryDao().getAllCategories();
             categoryList.clear();
@@ -174,10 +168,13 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    // MODIFICADO: Este método agora inclui a opção "Editar"
     private void mostrarDialogoOpcoesCategoria(CategoryEntity categoria) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Opções para: " + categoria.getName());
-        builder.setItems(new CharSequence[]{"Excluir", "Editar (Em breve...)"}, (dialog, which) -> {
+
+        // MODIFICADO: A opção "Editar" agora está funcional
+        builder.setItems(new CharSequence[]{"Excluir", "Editar"}, (dialog, which) -> {
             switch (which) {
                 case 0: // Excluir
                     new AlertDialog.Builder(MainActivity.this)
@@ -188,20 +185,85 @@ public class MainActivity extends AppCompatActivity {
                             .show();
                     break;
                 case 1: // Editar
-                    Toast.makeText(MainActivity.this, "Função de editar será implementada.", Toast.LENGTH_SHORT).show();
+                    // NOVO: Chama o diálogo de edição
+                    mostrarDialogoEditarCategoria(categoria);
                     break;
             }
         });
         builder.show();
     }
 
+    /**
+     * NOVO: Método para mostrar o diálogo de edição usando o XML "form_edit_categoria.xml"
+     */
+    private void mostrarDialogoEditarCategoria(CategoryEntity categoria) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Editar Categoria");
+
+        // Infla o layout customizado (form_edit_categoria.xml)
+        View dialogView = getLayoutInflater().inflate(R.layout.form_edit_categoria, null);
+        builder.setView(dialogView);
+
+        // Pega as referências dos componentes do diálogo
+        EditText editNome = dialogView.findViewById(R.id.editCategoriaNome);
+        EditText editLimite = dialogView.findViewById(R.id.editCategoriaLimite);
+
+        // Preenche os campos com os dados existentes
+        editNome.setText(categoria.getName());
+        editLimite.setText(String.format(Locale.US, "%.2f", categoria.getLimiteMensal()));
+
+        // Configura o botão "Salvar"
+        builder.setPositiveButton("Salvar", (dialog, which) -> {
+            String novoNome = editNome.getText().toString();
+            String novoLimiteStr = editLimite.getText().toString();
+
+            if (novoNome.isEmpty()) {
+                Toast.makeText(this, "O nome não pode ser vazio", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double novoLimite = 0.0;
+            if (!novoLimiteStr.isEmpty()) {
+                try {
+                    novoLimite = Double.parseDouble(novoLimiteStr);
+                } catch (NumberFormatException e) {
+                    Toast.makeText(this, "Limite inválido", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            // Atualiza o objeto original
+            categoria.setName(novoNome);
+            categoria.setLimiteMensal(novoLimite);
+
+            // Salva no banco de dados
+            atualizarCategoria(categoria);
+        });
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+    /**
+     * NOVO: Método auxiliar para salvar a categoria atualizada no banco
+     */
+    private void atualizarCategoria(CategoryEntity categoria) {
+        new Thread(() -> {
+            db.categoryDao().updateCategory(categoria);
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Categoria atualizada!", Toast.LENGTH_SHORT).show();
+                carregarCategoriasDoBanco(); // Atualiza a lista e o spinner
+            });
+        }).start();
+    }
+
+
     private void excluirCategoria(CategoryEntity categoria) {
+        // ... (Este método está correto, sem alterações)
         new Thread(() -> {
             db.categoryDao().deleteCategory(categoria);
             runOnUiThread(() -> {
                 Toast.makeText(this, "Categoria excluída", Toast.LENGTH_SHORT).show();
-                carregarCategoriasDoBanco(); // Recarrega categorias (lista e spinner)
-                // Não precisa mais recarregar despesas/resumo aqui
+                carregarCategoriasDoBanco();
             });
         }).start();
     }
@@ -209,10 +271,11 @@ public class MainActivity extends AppCompatActivity {
 
     // =================================================================================
     // --- MÉTODOS DE DESPESA (CRUD) ---
-    // (Apenas o 'Create' e o 'DatePicker' permanecem aqui)
+    // (Sem alterações aqui)
     // =================================================================================
 
     private void abrirSeletorData() {
+        // ... (Este método está correto, sem alterações)
         Calendar cal = Calendar.getInstance();
         int ano = cal.get(Calendar.YEAR);
         int mes = cal.get(Calendar.MONTH);
@@ -232,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void salvarNovaDespesa() {
+        // ... (Este método está correto, sem alterações)
         String valorStr = txtValorDespesa.getText().toString();
         String descricao = txtDescricaoDespesa.getText().toString();
 

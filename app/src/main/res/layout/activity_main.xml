@@ -146,6 +146,7 @@
             android:background="@android:drawable/editbox_background"
             android:hint="Data (será selecionada)"
             android:padding="12dp"
+            android:textColorHint="#000000"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
