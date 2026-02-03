@@ -25,5 +25,7 @@ public interface ExpenseDao {
     List<ExpenseEntity> getExpensesBetweenDates(long startDate, long endDate);
     @Query("SELECT SUM(valor) FROM despesas WHERE categoriaId = :categoryId AND data >= :startDate AND data <= :endDate")
     double getTotalExpensesForCategory(int categoryId, long startDate, long endDate);
+    @Query("SELECT SUM(valor) FROM despesas")
+    double getTotalExpenseSum();
 
 }
